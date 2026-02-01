@@ -19,16 +19,16 @@ function isDataValorDobrado(data) {
 ========================= */
 function salvarValores() {
   const valores = {
-    "6h Diurno": v6d.value,
-    "6h Noturno": v6n.value,
-    "8h Diurno": v8d.value,
-    "8h Noturno": v8n.value,
-    "12h Diurno": v12d.value,
-    "12h Noturno": v12n.value,
-    "24h": v24.value
+    "6h Diurno": Number(v6d.value || 0),
+    "6h Noturno": Number(v6n.value || 0),
+    "8h Diurno": Number(v8d.value || 0),
+    "8h Noturno": Number(v8n.value || 0),
+    "12h Diurno": Number(v12d.value || 0),
+    "12h Noturno": Number(v12n.value || 0),
+    "24h": Number(v24.value || 0)
   };
   localStorage.setItem("valores", JSON.stringify(valores));
-  alert("Valores salvos");
+  alert("Valores salvos com sucesso");
 }
 
 /* =========================
@@ -40,7 +40,7 @@ function salvarPlantao() {
   const turno = document.getElementById("turno").value;
 
   if (!nome || !data) {
-    alert("Preencha nome e data");
+    alert("Preencha o nome e a data");
     return;
   }
 
@@ -61,8 +61,8 @@ function salvarPlantao() {
   }
 
   localStorage.setItem("plantoes", JSON.stringify(plantoes));
-  filtrarPorMes();
   limparFormulario();
+  filtrarPorMes();
 }
 
 /* =========================
@@ -124,6 +124,7 @@ function excluirPlantao(index) {
 function limparFormulario() {
   document.getElementById("data").value = "";
   document.getElementById("turno").value = "6h Diurno";
+  editIndex = null;
 }
 
 /* =========================
@@ -141,14 +142,14 @@ function calcularTotal() {
       const [ano, mes] = p.data.split("-");
       return ano === anoSel && mes === mesSel;
     })
-    .reduce((s, p) => s + p.valor, 0);
+    .reduce((soma, p) => soma + p.valor, 0);
 
   document.getElementById("total").innerText =
     `Total a receber no mês: R$ ${total.toFixed(2)}`;
 }
 
 /* =========================
-   EXPORTAR CSV (COM VALOR)
+   EXPORTAR CSV DETALHADO
 ========================= */
 function exportarCSV() {
   const mesSelecionado = document.getElementById("mesSelecionado").value;
@@ -164,16 +165,42 @@ function exportarCSV() {
 
   if (!filtrados.length) return alert("Nenhum plantão no mês");
 
-  const total = filtrados.reduce((s, p) => s + p.valor, 0);
   const nome = filtrados[0].nome;
 
-  let csv = "Mes,Ano,Profissional,Total_a_Receber\n";
-  csv += `${mesSel},${anoSel},"${nome}",${total.toFixed(2)}\n`;
+  const totais = {
+    "6h Diurno": 0,
+    "6h Noturno": 0,
+    "8h Diurno": 0,
+    "8h Noturno": 0,
+    "12h Diurno": 0,
+    "12h Noturno": 0,
+    "24h": 0
+  };
 
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  filtrados.forEach(p => {
+    totais[p.turno] += p.valor;
+  });
+
+  const totalGeral = Object.values(totais).reduce((s, v) => s + v, 0);
+
+  let csv =
+    "Mes,Ano,Profissional,6h_Diurno,6h_Noturno,8h_Diurno,8h_Noturno,12h_Diurno,12h_Noturno,24h,Total\n";
+
+  csv +=
+    `${mesSel},${anoSel},"${nome}",` +
+    `${totais["6h Diurno"]},` +
+    `${totais["6h Noturno"]},` +
+    `${totais["8h Diurno"]},` +
+    `${totais["8h Noturno"]},` +
+    `${totais["12h Diurno"]},` +
+    `${totais["12h Noturno"]},` +
+    `${totais["24h"]},` +
+    `${totalGeral}\n`;
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `fechamento_${anoSel}-${mesSel}.csv`;
+  link.download = `fechamento_detalhado_${anoSel}-${mesSel}.csv`;
   link.click();
 }
 
