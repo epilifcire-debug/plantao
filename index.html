@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Plantões</title>
+
+  <!-- Manifest / PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d6efd">
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 15px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    button {
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #6c757d;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #eef1f5;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>📋 Controle de Plantões</h1>
+
+<div class="card">
+  <label>Nome do Profissional</label>
+  <input type="text" id="nome">
+
+  <label>Data</label>
+  <input type="date" id="data">
+
+  <label>Turno</label>
+  <select id="turno">
+    <option>6h Diurno</option>
+    <option>6h Noturno</option>
+    <option>8h Diurno</option>
+    <option>8h Noturno</option>
+    <option>12h Diurno</option>
+    <option>12h Noturno</option>
+    <option>24h</option>
+  </select>
+
+  <button onclick="salvarPlantao()">Salvar Plantão</button>
+</div>
+
+<div class="card">
+  <h2>⚙️ Configuração de Valores</h2>
+  <input id="v6d" placeholder="6h Diurno">
+  <input id="v6n" placeholder="6h Noturno">
+  <input id="v8d" placeholder="8h Diurno">
+  <input id="v8n" placeholder="8h Noturno">
+  <input id="v12d" placeholder="12h Diurno">
+  <input id="v12n" placeholder="12h Noturno">
+  <input id="v24" placeholder="24h">
+  <button class="secondary" onclick="salvarValores()">Salvar Valores</button>
+</div>
+
+<div class="card">
+  <h2>📅 Selecionar Mês</h2>
+  <input type="month" id="mesSelecionado" onchange="filtrarPorMes()">
+</div>
+
+<div class="card">
+  <h2>📌 Plantões do Mês</h2>
+  <ul id="lista"></ul>
+</div>
+
+<div class="card">
+  <h2>💰 Fechamento do Mês</h2>
+  <button onclick="calcularTotal()">Ver valor total</button>
+  <button onclick="exportarCSV()">Exportar CSV</button>
+  <button onclick="exportarTXT()">Exportar TXT / Word</button>
+  <h3 id="total"></h3>
+</div>
+
+<script src="script.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+  }
+</script>
+
+</body>
+</html>
