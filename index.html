@@ -9,21 +9,21 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
 
-  <!-- Favicon -->
+  <!-- Favicon / Ícones -->
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #111827;
-      --card-light: #1f2933;
+      --bg: #020617;
+      --card: #0f172a;
+      --card-light: #111827;
       --text: #e5e7eb;
       --text-muted: #9ca3af;
       --primary: #38bdf8;
       --primary-hover: #0ea5e9;
-      --danger: #ef4444;
       --warning: #f59e0b;
+      --danger: #ef4444;
       --border: #1e293b;
     }
 
@@ -33,31 +33,68 @@
 
     body {
       margin: 0;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(180deg, #020617, #0f172a);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg), #020617);
       color: var(--text);
+      padding-bottom: 40px;
+    }
+
+    /* ================= HEADER ================= */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: linear-gradient(180deg, #020617, #0f172a);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-left img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .app-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ================= CONTENT ================= */
+    .container {
       padding: 16px;
     }
 
-    h1, h2 {
-      text-align: center;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    h1 {
-      font-size: 1.6rem;
-    }
-
     h2 {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
+      margin-bottom: 10px;
       color: var(--primary);
+      font-weight: 600;
     }
 
     .card {
       background: linear-gradient(180deg, var(--card), var(--card-light));
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 16px;
       margin-bottom: 16px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.35);
@@ -70,18 +107,21 @@
 
     input, select {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       margin-top: 6px;
       margin-bottom: 12px;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 1px solid var(--border);
       background: #020617;
       color: var(--text);
-      font-size: 0.95rem;
+      font-size: 1rem;
+      cursor: pointer;
     }
 
-    input::placeholder {
-      color: #64748b;
+    input[type="month"] {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
     }
 
     input:focus, select:focus {
@@ -100,22 +140,12 @@
       font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
       margin-bottom: 8px;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(56,189,248,0.35);
     }
 
     button.secondary {
       background: linear-gradient(135deg, #475569, #334155);
       color: var(--text);
-    }
-
-    button.danger {
-      background: linear-gradient(135deg, #dc2626, #991b1b);
     }
 
     ul {
@@ -151,61 +181,102 @@
 
 <body>
 
-<h1>🌙 Controle de Plantões</h1>
+<!-- HEADER FIXO -->
+<header class="app-header">
+  <div class="header-left">
+    <img src="icon-192.png" alt="Ícone Controle de Plantões">
+    <div class="header-text">
+      <span class="app-title">Controle de Plantões</span>
+      <span class="app-subtitle" id="headerInfo">
+        Profissional não definido · Mês não selecionado
+      </span>
+    </div>
+  </div>
+</header>
 
-<div class="card">
-  <label>Nome do Profissional</label>
-  <input type="text" id="nome" placeholder="Ex: João da Silva">
+<!-- CONTEÚDO -->
+<div class="container">
 
-  <label>Data</label>
-  <input type="date" id="data">
+  <div class="card">
+    <label>Nome do Profissional</label>
+    <input type="text" id="nome" placeholder="Ex: João da Silva">
 
-  <label>Turno</label>
-  <select id="turno">
-    <option>6h Diurno</option>
-    <option>6h Noturno</option>
-    <option>8h Diurno</option>
-    <option>8h Noturno</option>
-    <option>12h Diurno</option>
-    <option>12h Noturno</option>
-    <option>24h</option>
-  </select>
+    <label>Data</label>
+    <input type="date" id="data">
 
-  <button onclick="salvarPlantao()">Salvar Plantão</button>
-</div>
+    <label>Turno</label>
+    <select id="turno">
+      <option>6h Diurno</option>
+      <option>6h Noturno</option>
+      <option>8h Diurno</option>
+      <option>8h Noturno</option>
+      <option>12h Diurno</option>
+      <option>12h Noturno</option>
+      <option>24h</option>
+    </select>
 
-<div class="card">
-  <h2>⚙️ Valores dos Plantões</h2>
-  <input id="v6d" placeholder="6h Diurno">
-  <input id="v6n" placeholder="6h Noturno">
-  <input id="v8d" placeholder="8h Diurno">
-  <input id="v8n" placeholder="8h Noturno">
-  <input id="v12d" placeholder="12h Diurno">
-  <input id="v12n" placeholder="12h Noturno">
-  <input id="v24" placeholder="24h">
-  <button class="secondary" onclick="salvarValores()">Salvar Valores</button>
-</div>
+    <button onclick="salvarPlantao()">Salvar Plantão</button>
+  </div>
 
-<div class="card">
-  <h2>📅 Selecionar Mês</h2>
-  <input type="month" id="mesSelecionado" onchange="filtrarPorMes()">
-</div>
+  <div class="card">
+    <h2>⚙️ Valores dos Plantões</h2>
+    <input id="v6d" placeholder="6h Diurno">
+    <input id="v6n" placeholder="6h Noturno">
+    <input id="v8d" placeholder="8h Diurno">
+    <input id="v8n" placeholder="8h Noturno">
+    <input id="v12d" placeholder="12h Diurno">
+    <input id="v12n" placeholder="12h Noturno">
+    <input id="v24" placeholder="24h">
+    <button class="secondary" onclick="salvarValores()">Salvar Valores</button>
+  </div>
 
-<div class="card">
-  <h2>📌 Plantões do Mês</h2>
-  <ul id="lista"></ul>
-</div>
+  <div class="card">
+    <h2>📅 Selecionar Mês</h2>
+    <input type="month" id="mesSelecionado" onchange="filtrarPorMes()">
+  </div>
 
-<div class="card">
-  <h2>💰 Fechamento do Mês</h2>
-  <button onclick="calcularTotal()">Ver valor total</button>
-  <button onclick="exportarCSV()">Exportar CSV</button>
-  <button onclick="exportarTXT()">Exportar TXT / Word</button>
-  <div id="total"></div>
+  <div class="card">
+    <h2>📌 Plantões do Mês</h2>
+    <ul id="lista"></ul>
+  </div>
+
+  <div class="card">
+    <h2>💰 Fechamento do Mês</h2>
+    <button onclick="calcularTotal()">Ver valor total</button>
+    <button onclick="exportarCSV()">Exportar CSV</button>
+    <button onclick="exportarTXT()">Exportar TXT / Word</button>
+    <div id="total"></div>
+  </div>
+
 </div>
 
 <script src="script.js"></script>
+
 <script>
+  // Atualiza header com nome e mês
+  const nomeInput = document.getElementById("nome");
+  const mesInput = document.getElementById("mesSelecionado");
+  const headerInfo = document.getElementById("headerInfo");
+
+  function atualizarHeader() {
+    const nome = nomeInput.value || "Profissional não definido";
+
+    let mesTexto = "Mês não selecionado";
+    if (mesInput.value) {
+      const [ano, mes] = mesInput.value.split("-");
+      const meses = [
+        "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+        "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+      ];
+      mesTexto = `${meses[mes - 1]} / ${ano}`;
+    }
+
+    headerInfo.textContent = `${nome} · ${mesTexto}`;
+  }
+
+  nomeInput.addEventListener("input", atualizarHeader);
+  mesInput.addEventListener("change", atualizarHeader);
+
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
   }
