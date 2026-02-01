@@ -1,11 +1,11 @@
 const lista = document.getElementById("lista");
+let editIndex = null;
 
 /* =========================
    DATAS COM VALOR DOBRADO
 ========================= */
 function isDataValorDobrado(data) {
   const [, mes, dia] = data.split("-");
-
   return (
     (dia === "24" && mes === "11") ||
     (dia === "25" && mes === "11") ||
@@ -19,21 +19,20 @@ function isDataValorDobrado(data) {
 ========================= */
 function salvarValores() {
   const valores = {
-    "6h Diurno": document.getElementById("v6d").value,
-    "6h Noturno": document.getElementById("v6n").value,
-    "8h Diurno": document.getElementById("v8d").value,
-    "8h Noturno": document.getElementById("v8n").value,
-    "12h Diurno": document.getElementById("v12d").value,
-    "12h Noturno": document.getElementById("v12n").value,
-    "24h": document.getElementById("v24").value
+    "6h Diurno": v6d.value,
+    "6h Noturno": v6n.value,
+    "8h Diurno": v8d.value,
+    "8h Noturno": v8n.value,
+    "12h Diurno": v12d.value,
+    "12h Noturno": v12n.value,
+    "24h": v24.value
   };
-
   localStorage.setItem("valores", JSON.stringify(valores));
-  alert("Valores salvos com sucesso");
+  alert("Valores salvos");
 }
 
 /* =========================
-   SALVAR PLANTÃO
+   SALVAR / ATUALIZAR PLANTÃO
 ========================= */
 function salvarPlantao() {
   const nome = document.getElementById("nome").value.trim();
@@ -41,23 +40,29 @@ function salvarPlantao() {
   const turno = document.getElementById("turno").value;
 
   if (!nome || !data) {
-    alert("Preencha o nome e a data");
+    alert("Preencha nome e data");
     return;
   }
 
   const valores = JSON.parse(localStorage.getItem("valores")) || {};
   let valor = Number(valores[turno] || 0);
 
-  // Aplica valor dobrado se for data especial
   if (isDataValorDobrado(data)) {
-    valor = valor * 2;
+    valor *= 2;
   }
 
   const plantoes = JSON.parse(localStorage.getItem("plantoes")) || [];
-  plantoes.push({ nome, data, turno, valor });
+
+  if (editIndex !== null) {
+    plantoes[editIndex] = { nome, data, turno, valor };
+    editIndex = null;
+  } else {
+    plantoes.push({ nome, data, turno, valor });
+  }
 
   localStorage.setItem("plantoes", JSON.stringify(plantoes));
   filtrarPorMes();
+  limparFormulario();
 }
 
 /* =========================
@@ -72,19 +77,53 @@ function filtrarPorMes() {
   const [anoSel, mesSel] = mesSelecionado.split("-");
   const plantoes = JSON.parse(localStorage.getItem("plantoes")) || [];
 
-  const filtrados = plantoes
-    .filter(p => {
-      const [ano, mes] = p.data.split("-");
-      return ano === anoSel && mes === mesSel;
-    })
-    .sort((a, b) => new Date(a.data) - new Date(b.data));
-
-  filtrados.forEach(p => {
-    const [a, m, d] = p.data.split("-");
-    const li = document.createElement("li");
-    li.textContent = `${d}/${m} ${p.turno}`;
-    lista.appendChild(li);
+  plantoes.forEach((p, index) => {
+    const [ano, mes, dia] = p.data.split("-");
+    if (ano === anoSel && mes === mesSel) {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        ${dia}/${mes} ${p.turno}
+        <br>
+        <button onclick="editarPlantao(${index})">✏️ Editar</button>
+        <button onclick="excluirPlantao(${index})">🗑️ Excluir</button>
+      `;
+      lista.appendChild(li);
+    }
   });
+}
+
+/* =========================
+   EDITAR PLANTÃO
+========================= */
+function editarPlantao(index) {
+  const plantoes = JSON.parse(localStorage.getItem("plantoes")) || [];
+  const p = plantoes[index];
+
+  document.getElementById("nome").value = p.nome;
+  document.getElementById("data").value = p.data;
+  document.getElementById("turno").value = p.turno;
+
+  editIndex = index;
+}
+
+/* =========================
+   EXCLUIR PLANTÃO
+========================= */
+function excluirPlantao(index) {
+  if (!confirm("Deseja excluir este plantão?")) return;
+
+  const plantoes = JSON.parse(localStorage.getItem("plantoes")) || [];
+  plantoes.splice(index, 1);
+  localStorage.setItem("plantoes", JSON.stringify(plantoes));
+  filtrarPorMes();
+}
+
+/* =========================
+   LIMPAR FORMULÁRIO
+========================= */
+function limparFormulario() {
+  document.getElementById("data").value = "";
+  document.getElementById("turno").value = "6h Diurno";
 }
 
 /* =========================
@@ -92,10 +131,7 @@ function filtrarPorMes() {
 ========================= */
 function calcularTotal() {
   const mesSelecionado = document.getElementById("mesSelecionado").value;
-  if (!mesSelecionado) {
-    alert("Selecione um mês");
-    return;
-  }
+  if (!mesSelecionado) return alert("Selecione um mês");
 
   const [anoSel, mesSel] = mesSelecionado.split("-");
   const plantoes = JSON.parse(localStorage.getItem("plantoes")) || [];
@@ -105,7 +141,7 @@ function calcularTotal() {
       const [ano, mes] = p.data.split("-");
       return ano === anoSel && mes === mesSel;
     })
-    .reduce((soma, p) => soma + p.valor, 0);
+    .reduce((s, p) => s + p.valor, 0);
 
   document.getElementById("total").innerText =
     `Total a receber no mês: R$ ${total.toFixed(2)}`;
@@ -116,10 +152,7 @@ function calcularTotal() {
 ========================= */
 function exportarCSV() {
   const mesSelecionado = document.getElementById("mesSelecionado").value;
-  if (!mesSelecionado) {
-    alert("Selecione um mês");
-    return;
-  }
+  if (!mesSelecionado) return alert("Selecione um mês");
 
   const [anoSel, mesSel] = mesSelecionado.split("-");
   const plantoes = JSON.parse(localStorage.getItem("plantoes")) || [];
@@ -129,18 +162,15 @@ function exportarCSV() {
     return ano === anoSel && mes === mesSel;
   });
 
-  if (!filtrados.length) {
-    alert("Nenhum plantão no mês selecionado");
-    return;
-  }
+  if (!filtrados.length) return alert("Nenhum plantão no mês");
 
-  const total = filtrados.reduce((soma, p) => soma + p.valor, 0);
+  const total = filtrados.reduce((s, p) => s + p.valor, 0);
   const nome = filtrados[0].nome;
 
   let csv = "Mes,Ano,Profissional,Total_a_Receber\n";
   csv += `${mesSel},${anoSel},"${nome}",${total.toFixed(2)}\n`;
 
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = `fechamento_${anoSel}-${mesSel}.csv`;
@@ -152,10 +182,7 @@ function exportarCSV() {
 ========================= */
 function exportarTXT() {
   const mesSelecionado = document.getElementById("mesSelecionado").value;
-  if (!mesSelecionado) {
-    alert("Selecione um mês");
-    return;
-  }
+  if (!mesSelecionado) return alert("Selecione um mês");
 
   const [anoSel, mesSel] = mesSelecionado.split("-");
   const meses = [
@@ -171,16 +198,13 @@ function exportarTXT() {
     })
     .sort((a, b) => new Date(a.data) - new Date(b.data));
 
-  if (!filtrados.length) {
-    alert("Nenhum plantão no mês selecionado");
-    return;
-  }
+  if (!filtrados.length) return alert("Nenhum plantão no mês");
 
   let texto = `PLANTÕES – ${meses[mesSel - 1]} / ${anoSel}\n\n`;
   texto += `Profissional: ${filtrados[0].nome}\n\n`;
 
   filtrados.forEach(p => {
-    const [a, m, d] = p.data.split("-");
+    const [, m, d] = p.data.split("-");
     texto += `${d}/${m} ${p.turno}\n`;
   });
 
