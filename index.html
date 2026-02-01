@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Controle de Plantões</title>
 
+  <meta name="description" content="PWA para controle de plantões, fechamento mensal e exportação financeira.">
+
   <!-- Manifest / PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
@@ -27,9 +29,7 @@
       --border: #1e293b;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -39,7 +39,7 @@
       padding-bottom: 40px;
     }
 
-    /* ================= HEADER ================= */
+    /* HEADER */
     .app-header {
       position: sticky;
       top: 0;
@@ -71,7 +71,6 @@
     .app-title {
       font-size: 1.1rem;
       font-weight: 600;
-      color: var(--text);
     }
 
     .app-subtitle {
@@ -79,10 +78,8 @@
       color: var(--text-muted);
     }
 
-    /* ================= CONTENT ================= */
-    .container {
-      padding: 16px;
-    }
+    /* CONTENT */
+    .container { padding: 16px; }
 
     h2 {
       font-size: 1.05rem;
@@ -148,11 +145,7 @@
       color: var(--text);
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+    ul { list-style: none; padding: 0; margin: 0; }
 
     li {
       background: #020617;
@@ -181,7 +174,6 @@
 
 <body>
 
-<!-- HEADER FIXO -->
 <header class="app-header">
   <div class="header-left">
     <img src="icon-192.png" alt="Ícone Controle de Plantões">
@@ -194,17 +186,16 @@
   </div>
 </header>
 
-<!-- CONTEÚDO -->
 <div class="container">
 
   <div class="card">
-    <label>Nome do Profissional</label>
+    <label for="nome">Nome do Profissional</label>
     <input type="text" id="nome" placeholder="Ex: João da Silva">
 
-    <label>Data</label>
+    <label for="data">Data</label>
     <input type="date" id="data">
 
-    <label>Turno</label>
+    <label for="turno">Turno</label>
     <select id="turno">
       <option>6h Diurno</option>
       <option>6h Noturno</option>
@@ -220,18 +211,34 @@
 
   <div class="card">
     <h2>⚙️ Valores dos Plantões</h2>
-    <input id="v6d" placeholder="6h Diurno">
-    <input id="v6n" placeholder="6h Noturno">
-    <input id="v8d" placeholder="8h Diurno">
-    <input id="v8n" placeholder="8h Noturno">
-    <input id="v12d" placeholder="12h Diurno">
-    <input id="v12n" placeholder="12h Noturno">
-    <input id="v24" placeholder="24h">
+
+    <label for="v6d">6h Diurno</label>
+    <input id="v6d" placeholder="Valor">
+
+    <label for="v6n">6h Noturno</label>
+    <input id="v6n" placeholder="Valor">
+
+    <label for="v8d">8h Diurno</label>
+    <input id="v8d" placeholder="Valor">
+
+    <label for="v8n">8h Noturno</label>
+    <input id="v8n" placeholder="Valor">
+
+    <label for="v12d">12h Diurno</label>
+    <input id="v12d" placeholder="Valor">
+
+    <label for="v12n">12h Noturno</label>
+    <input id="v12n" placeholder="Valor">
+
+    <label for="v24">24h</label>
+    <input id="v24" placeholder="Valor">
+
     <button class="secondary" onclick="salvarValores()">Salvar Valores</button>
   </div>
 
   <div class="card">
     <h2>📅 Selecionar Mês</h2>
+    <label for="mesSelecionado">Mês/Ano</label>
     <input type="month" id="mesSelecionado" onchange="filtrarPorMes()">
   </div>
 
@@ -253,7 +260,6 @@
 <script src="script.js"></script>
 
 <script>
-  // Atualiza header com nome e mês
   const nomeInput = document.getElementById("nome");
   const mesInput = document.getElementById("mesSelecionado");
   const headerInfo = document.getElementById("headerInfo");
