@@ -1,6 +1,20 @@
 const lista = document.getElementById("lista");
 
 /* =========================
+   DATAS COM VALOR DOBRADO
+========================= */
+function isDataValorDobrado(data) {
+  const [, mes, dia] = data.split("-");
+
+  return (
+    (dia === "24" && mes === "11") ||
+    (dia === "25" && mes === "11") ||
+    (dia === "31" && mes === "12") ||
+    (dia === "01" && mes === "01")
+  );
+}
+
+/* =========================
    SALVAR VALORES DOS TURNOS
 ========================= */
 function salvarValores() {
@@ -32,13 +46,17 @@ function salvarPlantao() {
   }
 
   const valores = JSON.parse(localStorage.getItem("valores")) || {};
-  const valor = Number(valores[turno] || 0);
+  let valor = Number(valores[turno] || 0);
+
+  // Aplica valor dobrado se for data especial
+  if (isDataValorDobrado(data)) {
+    valor = valor * 2;
+  }
 
   const plantoes = JSON.parse(localStorage.getItem("plantoes")) || [];
   plantoes.push({ nome, data, turno, valor });
 
   localStorage.setItem("plantoes", JSON.stringify(plantoes));
-
   filtrarPorMes();
 }
 
